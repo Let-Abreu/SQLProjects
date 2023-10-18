@@ -39,14 +39,16 @@ ORDER BY
 LIMIT 1
 
 
--- Finding the number of orders made in each day of the week 
+-- Finding the number of orders made per day of week, by year
 SELECT
   COUNT(order_id) AS num_orders,
-  FORMAT_DATETIME("%A", DATETIME (order_purchase_timestamp)) AS day_of_week
+  FORMAT_DATETIME("%A", DATETIME (order_purchase_timestamp)) AS day_of_week,
+  EXTRACT(YEAR FROM order_purchase_timestamp) AS year
 FROM
   `olist_orders_dataset`
 GROUP BY
-  day_of_week
+  day_of_week,
+  year
 ORDER BY
   num_orders DESC
 
@@ -67,10 +69,11 @@ ORDER BY
 
 
 
--- Finding the top five products categories with the most orders
+-- Finding the products categories with the most orders
 SELECT
   COUNT(orders.order_id) AS num_of_orders,
-  product_category_name
+  product_category_name,
+  EXTRACT(YEAR FROM order_purchase_timestamp) AS year
 FROM
   `olist_orders_dataset` AS orders
 JOIN
@@ -82,10 +85,66 @@ JOIN
 ON
   items.product_id = products.product_id
 GROUP BY
-  product_category_name
+  product_category_name,
+  year
 ORDER BY
-  num_of_orders DESC LIMIT 5
+  num_of_orders DESC
 
 
 
+-- Finding the favorite type of payment
+SELECT
+  COUNT(orders.order_id) AS num_orders,
+  payment.payment_type,
+  EXTRACT(YEAR FROM order_purchase_timestamp) AS year
+FROM
+  `olist_order_payments_dataset` AS payment
+JOIN 
+  `olist_orders_dataset` AS orders
+ON
+  payment.order_id = orders.order_id  
+GROUP BY
+  payment_type,
+  year
+
+
+
+-- Finding the average money spent per order
+SELECT
+  AVG(payment_value) AS avg_money_spent_by_order,
+  EXTRACT(YEAR FROM order_purchase_timestamp) AS year
+FROM
+  `olist_order_payments_dataset` AS payments
+JOIN
+  `olist_orders_dataset` AS orders
+ON
+  payments.order_id = orders.order_id
+GROUP BY
+  year
+
+
+
+-- Finding the total number of orders made in all years
+SELECT
+  COUNT(order_id) AS num_of_orders,
+  EXTRACT(YEAR FROM order_purchase_timestamp) AS year
+FROM
+  `olist_orders_dataset`
+GROUP BY
+  year
+
+
+
+-- Finding the total money spent in all years
+SELECT
+  SUM(payment_value) AS total_money_spent,
+  EXTRACT(YEAR FROM order_purchase_timestamp) AS year
+FROM
+  `olist_order_payments_dataset` AS payment
+JOIN
+  `olist_orders_dataset` AS orders
+ON
+  payment.order_id = orders.order_id
+GROUP BY
+  year
 
