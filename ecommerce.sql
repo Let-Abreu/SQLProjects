@@ -54,7 +54,7 @@ ORDER BY
 -- Finding the number of orders made per month, by year
 SELECT 
   COUNT(order_id) AS num_orders,
-  FORMAT_DATETIME("%B", DATETIME (order_purchase_timestamp)) AS moth,
+  FORMAT_DATETIME("%B", DATETIME (order_purchase_timestamp)) AS month,
   EXTRACT(YEAR FROM order_purchase_timestamp) AS year
 FROM 
   `olist_orders_dataset`
